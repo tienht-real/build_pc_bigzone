@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <!-- ── Hero Banner ─────────────────────────────────────────────────────── -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-banner">
+                <div class="banner-slide" style="background: var(--gradient-primary);">
+                    <div class="banner-content">
+                        <p class="banner-sub">CHÀO MỪNG ĐẾN VỚI BIGZONE</p>
+                        <h2>SIÊU SALE CÔNG NGHỆ</h2>
+                        <p class="banner-desc">Giảm giá lên đến 50% cho PC Gaming, Laptop & Linh kiện</p>
+                        <div class="banner-actions">
+                            <a href="/category/1" class="banner-btn primary">
+                                <i class="ph-bold ph-desktop"></i> PC Gaming
+                            </a>
+                            <a href="/category/4" class="banner-btn secondary">
+                                <i class="ph-bold ph-laptop"></i> Laptop
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Category Quick Access ──────────────────────────────────────────── -->
+    <section class="section categories-section">
+        <div class="container">
+            <div class="category-tiles">
+                {% for cat in nav_categories %}
+                <a href="/category/{{ cat.id }}" class="category-tile">
+                    <i class="ph-fill {{ cat.icon }}"></i>
+                    <span>{{ cat.name }}</span>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- ── HOT SALE ───────────────────────────────────────────────────────── -->
+    <section class="section">
+        <div class="container">
+            <div class="product-section">
+                <div class="section-header bg-accent">
+                    <h2 class="section-title"><i class="ph-fill ph-fire"></i> KHUYẾN MÃI HOT NHẤT</h2>
+                    <a href="/search?q=" class="view-all">Xem tất cả <i class="ph-bold ph-caret-right"></i></a>
+                </div>
+                <div class="product-grid">
+                    {% for product in hot_sale %}
+                    <div class="product-card"
+                         data-id="{{ product.id }}"
+                         data-title="{{ product.title }}"
+                         data-price="{{ product.price_current }}">
+                        {% if product.discount_percent %}
+                        <div class="discount-badge">-{{ product.discount_percent }}%</div>
+                        {% endif %}
+                        <a href="/product/{{ product.id }}" class="product-image-link">
+                            <div class="product-image">
+                                {% if product.image_url %}
+                                <img src="{{ product.image_url }}" alt="{{ product.title }}" loading="lazy">
+                                {% endif %}
+                            </div>
+                        </a>
+                        <div class="product-info">
+                            <a href="/product/{{ product.id }}">
+                                <h3 class="product-name">{{ product.title }}</h3>
+                            </a>
+                            {% if product.brand %}
+                            <span class="product-brand">{{ product.brand }}</span>
+                            {% endif %}
+                            <div class="product-price">
+                                <span class="price-current">{{ product.price_current | currency }}</span>
+                                {% if product.price_old %}
+                                <span class="price-old">{{ product.price_old | currency }}</span>
+                                {% endif %}
+                            </div>
+                            <button class="btn-cart-add" title="Thêm vào giỏ">
+                                <i class="ph-bold ph-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── PC GAMING ──────────────────────────────────────────────────────── -->
+    <section class="section">
+        <div class="container">
+            <div class="product-section">
+                <div class="section-header bg-primary">
+                    <h2 class="section-title"><i class="ph-fill ph-desktop"></i> PC GAMING, STREAMING</h2>
+                    <a href="/category/1" class="view-all">Xem tất cả <i class="ph-bold ph-caret-right"></i></a>
+                </div>
+                <div class="product-grid">
+                    {% for product in pc_gaming %}
+                    <div class="product-card"
+                         data-id="{{ product.id }}"
+                         data-title="{{ product.title }}"
+                         data-price="{{ product.price_current }}">
+                        {% if product.discount_percent %}
+                        <div class="discount-badge" style="background:var(--gradient-primary)">-{{ product.discount_percent }}%</div>
+                        {% endif %}
+                        <a href="/product/{{ product.id }}" class="product-image-link">
+                            <div class="product-image">
+                                {% if product.image_url %}
+                                <img src="{{ product.image_url }}" alt="{{ product.title }}" loading="lazy">
+                                {% endif %}
+                            </div>
+                        </a>
+                        <div class="product-info">
+                            <a href="/product/{{ product.id }}">
+                                <h3 class="product-name">{{ product.title }}</h3>
+                            </a>
+                            {% if product.brand %}
+                            <span class="product-brand">{{ product.brand }}</span>
+                            {% endif %}
+                            <div class="product-price">
+                                <span class="price-current">{{ product.price_current | currency }}</span>
+                                {% if product.price_old %}
+                                <span class="price-old">{{ product.price_old | currency }}</span>
+                                {% endif %}
+                            </div>
+                            <button class="btn-cart-add" title="Thêm vào giỏ">
+                                <i class="ph-bold ph-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

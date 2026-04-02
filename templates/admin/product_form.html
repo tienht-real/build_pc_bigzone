@@ -1,0 +1,85 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Thêm / Sửa Sản phẩm - Bigzone Admin{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:800px; margin:0 auto;">
+    <h2 style="margin-top:0;">{% if product %}Sửa Sản Phẩm: {{ product.title }}{% else %}Thêm Mới Sản Phẩm{% endif %}</h2>
+    <hr style="border:0; border-bottom:1px solid #e2e8f0; margin-bottom:20px;">
+    
+    <form method="POST" action="{% if product %}/admin/products/{{ product.id }}/edit{% else %}/admin/products/new{% endif %}">
+        
+        <div class="form-group">
+            <label for="title">Tên sản phẩm *</label>
+            <input type="text" id="title" name="title" class="form-control" value="{{ product.title if product else '' }}" required>
+        </div>
+
+        <div style="display:flex; gap:20px; align-items:flex-end;">
+            <div class="form-group" style="flex:1;">
+                <label for="category_id">Danh mục *</label>
+                <select id="category_id" name="category_id" class="form-control" required>
+                    <option value="">-- Chọn danh mục --</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if product and product.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group" style="flex:1;">
+                <label for="brand">Thương hiệu</label>
+                <input type="text" id="brand" name="brand" class="form-control" value="{{ product.brand if product else '' }}">
+            </div>
+            
+            <div class="form-group" style="flex:1;">
+                <label for="section">Khu vực bán</label>
+                <select id="section" name="section" class="form-control">
+                    <option value="">Bình thường</option>
+                    <option value="HOT_SALE" {% if product and product.section == 'HOT_SALE' %}selected{% endif %}>HOT SALE</option>
+                    <option value="PC_GAMING" {% if product and product.section == 'PC_GAMING' %}selected{% endif %}>PC GAMING TỐT NHẤT</option>
+                </select>
+            </div>
+        </div>
+
+        <div style="display:flex; gap:20px;">
+            <div class="form-group" style="flex:1;">
+                <label for="price_current">Giá bán hiện tại (VNĐ) *</label>
+                <input type="number" id="price_current" name="price_current" class="form-control" value="{{ product.price_current if product else '' }}" required>
+            </div>
+
+            <div class="form-group" style="flex:1;">
+                <label for="price_old">Giá cũ (VNĐ)</label>
+                <input type="number" id="price_old" name="price_old" class="form-control" value="{{ product.price_old if product else '' }}">
+            </div>
+
+            <div class="form-group" style="flex:1;">
+                <label for="discount_percent">Phần trăm giảm (%)</label>
+                <input type="number" id="discount_percent" name="discount_percent" class="form-control" value="{{ product.discount_percent if product else '' }}">
+            </div>
+        </div>
+
+        <div style="display:flex; gap:20px;">
+            <div class="form-group" style="flex:1;">
+                <label for="image_url">Link Hình Ảnh (URL)</label>
+                <input type="url" id="image_url" name="image_url" class="form-control" value="{{ product.image_url if product else '' }}" placeholder="https://...">
+            </div>
+            <div class="form-group" style="flex:0 0 150px;">
+                <label for="stock">Số lượng tồn kho</label>
+                <input type="number" id="stock" name="stock" class="form-control" value="{{ product.stock if product else '10' }}" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Mô tả chi tiết</label>
+            <textarea id="description" name="description" class="form-control" rows="5">{{ product.description if product else '' }}</textarea>
+        </div>
+
+        <div style="text-align:right;">
+            <a href="/admin/products" class="btn" style="background:#f1f5f9; color:#475569; margin-right:10px;">Hủy bỏ</a>
+            <button type="submit" class="btn btn-primary"><i class="ph-bold ph-floppy-disk"></i> Lưu Thay Đổi</button>
+        </div>
+    </form>
+</div>
+<script>
+    document.querySelectorAll('.nav-item')[1].classList.add('active');
+</script>
+{% endblock %}

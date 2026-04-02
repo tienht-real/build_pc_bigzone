@@ -1,0 +1,186 @@
+/* ═══════════════════════════════════════
+   CATEGORY & SEARCH PAGE STYLES
+═══════════════════════════════════════ */
+
+/* ── Breadcrumb ─────────────────────────────────────────────────────────── */
+.breadcrumb-bar {
+    background: var(--clr-bg-surface);
+    border-bottom: 1px solid #e5e7eb;
+    padding: 10px 0;
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--clr-text-muted);
+    flex-wrap: wrap;
+}
+
+.breadcrumb a {
+    color: var(--clr-primary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.breadcrumb a:hover { text-decoration: underline; }
+
+.breadcrumb i { font-size: 12px; }
+
+/* ── Category Page Layout ────────────────────────────────────────────────── */
+.category-page {
+    padding: 24px 0 40px;
+}
+
+.category-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.category-header-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.category-header-info > i {
+    font-size: 48px;
+    color: var(--clr-primary);
+    background: #e6f0ff;
+    padding: 12px;
+    border-radius: var(--radius-md);
+}
+
+.category-header-info h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--clr-text-main);
+    margin: 0 0 4px;
+}
+
+.category-header-info p {
+    font-size: 14px;
+    color: var(--clr-text-muted);
+    margin: 0;
+}
+
+/* ── Sort Form ───────────────────────────────────────────────────────────── */
+.sort-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--clr-text-muted);
+}
+
+.sort-form label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.sort-form select {
+    padding: 8px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: inherit;
+    background: white;
+    cursor: pointer;
+    color: var(--clr-text-main);
+}
+
+.sort-form select:focus {
+    outline: none;
+    border-color: var(--clr-primary);
+}
+
+/* ── Larger product grid for category page ───────────────────────────────── */
+.product-grid-lg {
+    grid-template-columns: repeat(4, 1fr) !important;
+}
+
+@media (max-width: 1100px) { .product-grid-lg { grid-template-columns: repeat(3, 1fr) !important; } }
+@media (max-width: 768px)  { .product-grid-lg { grid-template-columns: repeat(2, 1fr) !important; } }
+@media (max-width: 480px)  { .product-grid-lg { grid-template-columns: 1fr !important; } }
+
+/* ── Stock status ────────────────────────────────────────────────────────── */
+.stock-status {
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 4px 0 0;
+}
+
+.stock-status.in-stock  { color: #16a34a; }
+.stock-status.out-stock { color: var(--clr-accent); }
+
+/* ── Empty state ─────────────────────────────────────────────────────────── */
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--clr-text-muted);
+}
+
+.empty-state > i {
+    font-size: 72px;
+    color: #d1d5db;
+    display: block;
+    margin-bottom: 20px;
+}
+
+.empty-state h3 {
+    font-size: 20px;
+    color: var(--clr-text-main);
+    margin: 0 0 8px;
+}
+
+.empty-state p {
+    margin: 0 0 24px;
+    font-size: 15px;
+}
+
+/* ── Search inline input ─────────────────────────────────────────────────── */
+.search-input-inline {
+    padding: 8px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: inherit;
+    width: 220px;
+}
+
+.search-input-inline:focus {
+    outline: none;
+    border-color: var(--clr-primary);
+}
+
+.btn-sm {
+    padding: 8px 16px !important;
+    font-size: 14px !important;
+}
+
+/* Search + sort group */
+.search-sort-group {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .category-header { flex-direction: column; align-items: stretch; }
+    .search-sort-group { flex-direction: column; align-items: stretch; }
+    .sort-form { width: 100%; }
+    .search-input-inline { width: 100% !important; }
+}

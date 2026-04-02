@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}Tìm kiếm "{{ query }}" | Bigzone{% endblock %}
+
+{% block content %}
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-bar">
+        <div class="container">
+            <nav class="breadcrumb">
+                <a href="/"><i class="ph-fill ph-house"></i> Trang chủ</a>
+                <i class="ph-bold ph-caret-right"></i>
+                <span>Tìm kiếm: "{{ query }}"</span>
+            </nav>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="category-page">
+
+            <div class="category-header">
+                <div class="category-header-info">
+                    <i class="ph-fill ph-magnifying-glass"></i>
+                    <div>
+                        <h1>Kết quả tìm kiếm</h1>
+                        <p>
+                            {% if query %}
+                                Tìm thấy <strong>{{ total_products }}</strong> sản phẩm cho từ khoá "<em>{{ query }}</em>"
+                            {% else %}
+                                Vui lòng nhập từ khoá tìm kiếm
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                <!-- Search + Sort -->
+                <div class="search-sort-group">
+                    <form class="sort-form" action="/search" method="GET">
+                        <input type="hidden" name="q" value="{{ query }}">
+                        <label><i class="ph-bold ph-funnel"></i> Sắp xếp:</label>
+                        <select name="sort" onchange="this.form.submit()">
+                            <option value="default" {% if sort == 'default' %}selected{% endif %}>Mặc định</option>
+                            <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Giá tăng dần</option>
+                            <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Giá giảm dần</option>
+                            <option value="discount" {% if sort == 'discount' %}selected{% endif %}>Giảm giá nhiều</option>
+                        </select>
+                    </form>
+                    <form class="sort-form" action="/search" method="GET">
+                        <input type="text" name="q" value="{{ query }}" placeholder="Tìm kiếm..." class="search-input-inline">
+                        <button type="submit" class="btn-primary btn-sm">
+                            <i class="ph-bold ph-magnifying-glass"></i> Tìm
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            {% if products %}
+            <div class="product-grid product-grid-lg">
+                {% for product in products %}
+                <div class="product-card"
+                     data-id="{{ product.id }}"
+                     data-title="{{ product.title }}"
+                     data-price="{{ product.price_current }}">
+                    {% if product.discount_percent %}
+                    <div class="discount-badge">-{{ product.discount_percent }}%</div>
+                    {% endif %}
+                    <a href="/product/{{ product.id }}" class="product-image-link">
+                        <div class="product-image">
+                            {% if product.image_url %}
+                            <img src="{{ product.image_url }}" alt="{{ product.title }}" loading="lazy">
+                            {% endif %}
+                        </div>
+                    </a>
+                    <div class="product-info">
+                        <a href="/product/{{ product.id }}">
+                            <h3 class="product-name">{{ product.title }}</h3>
+                        </a>
+                        {% if product.brand %}
+                        <span class="product-brand">{{ product.brand }}</span>
+                        {% endif %}
+                        <div class="product-price">
+                            <span class="price-current">{{ product.price_current | currency }}</span>
+                            {% if product.price_old %}
+                            <span class="price-old">{{ product.price_old | currency }}</span>
+                            {% endif %}
+                        </div>
+                        <button class="btn-cart-add" title="Thêm vào giỏ">
+                            <i class="ph-bold ph-shopping-cart"></i>
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if total_pages > 1 %}
+            <nav class="pagination">
+                {% if page > 1 %}
+                <a href="/search?q={{ query }}&sort={{ sort }}&page={{ page - 1 }}"><i class="ph-bold ph-caret-left"></i></a>
+                {% else %}
+                <span class="disabled"><i class="ph-bold ph-caret-left"></i></span>
+                {% endif %}
+
+                {% for p in range(1, total_pages + 1) %}
+                    {% if p == page %}
+                    <span class="active">{{ p }}</span>
+                    {% elif p == 1 or p == total_pages or (p >= page - 2 and p <= page + 2) %}
+                    <a href="/search?q={{ query }}&sort={{ sort }}&page={{ p }}">{{ p }}</a>
+                    {% elif p == page - 3 or p == page + 3 %}
+                    <span class="dots">...</span>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page < total_pages %}
+                <a href="/search?q={{ query }}&sort={{ sort }}&page={{ page + 1 }}"><i class="ph-bold ph-caret-right"></i></a>
+                {% else %}
+                <span class="disabled"><i class="ph-bold ph-caret-right"></i></span>
+                {% endif %}
+            </nav>
+            {% endif %}
+
+            {% elif query %}
+            <div class="empty-state">
+                <i class="ph-fill ph-magnifying-glass"></i>
+                <h3>Không tìm thấy sản phẩm</h3>
+                <p>Không có sản phẩm nào khớp với "<strong>{{ query }}</strong>". Hãy thử từ khoá khác.</p>
+                <a href="/" class="btn-primary">Về trang chủ</a>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+{% endblock %}

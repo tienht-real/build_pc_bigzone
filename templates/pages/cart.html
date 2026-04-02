@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Giỏ hàng | Bigzone{% endblock %}
+
+{% block content %}
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-bar">
+        <div class="container">
+            <nav class="breadcrumb">
+                <a href="/"><i class="ph-fill ph-house"></i> Trang chủ</a>
+                <i class="ph-bold ph-caret-right"></i>
+                <span>Giỏ hàng</span>
+            </nav>
+        </div>
+    </div>
+
+    <section class="section">
+        <div class="container">
+            <div class="cart-page">
+                <h1 class="page-title"><i class="ph-bold ph-shopping-cart"></i> Giỏ hàng của bạn</h1>
+
+                <!-- Cart with items -->
+                <div class="cart-layout" id="cartLayout" style="display: none;">
+                    <div class="cart-items-col">
+                        <div class="cart-actions-top">
+                            <span class="cart-count-text">Bạn có <strong id="cartItemCount">0</strong> sản phẩm trong giỏ</span>
+                            <button class="btn-clear-cart" id="btnClearCart">
+                                <i class="ph-bold ph-trash"></i> Xoá tất cả
+                            </button>
+                        </div>
+                        <div class="cart-header">
+                            <span>Ảnh</span>
+                            <span>Sản phẩm</span>
+                            <span style="text-align:center">Số lượng</span>
+                            <span style="text-align:right">Thành tiền</span>
+                            <span></span>
+                        </div>
+                        <div id="cartContainer">
+                            <div class="cart-loading">Đang tải giỏ hàng...</div>
+                        </div>
+                    </div>
+
+                    <div class="cart-summary-section">
+                        <div class="cart-total-box">
+                            <h3>Tóm tắt đơn hàng</h3>
+                            <div class="total-row">
+                                <span>Tạm tính:</span>
+                                <span id="cartSubtotal">0 VNĐ</span>
+                            </div>
+                            <div class="total-row">
+                                <span>Phí vận chuyển:</span>
+                                <span style="color:var(--clr-success);font-weight:600;">Miễn phí</span>
+                            </div>
+                            <div class="total-row grand-total">
+                                <span>Tổng cộng:</span>
+                                <strong id="cartTotalText">0 VNĐ</strong>
+                            </div>
+                            <div class="shipping-note">
+                                <i class="ph-fill ph-truck"></i>
+                                <span>Miễn phí vận chuyển cho đơn từ 500.000 VNĐ</span>
+                            </div>
+                            <button class="btn-checkout" id="btnGoToCheckout">
+                                <i class="ph-bold ph-credit-card"></i> Tiến hành đặt hàng
+                            </button>
+                            <a href="/" class="continue-shopping">
+                                <i class="ph-bold ph-arrow-left"></i> Tiếp tục mua sắm
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty cart -->
+                <div class="cart-empty" id="cartEmpty" style="display: none;">
+                    <i class="ph-fill ph-shopping-cart-simple"></i>
+                    <p>Giỏ hàng của bạn đang trống.</p>
+                    <a href="/" class="btn btn-primary">
+                        <i class="ph-bold ph-storefront"></i> Quay lại mua sắm
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
