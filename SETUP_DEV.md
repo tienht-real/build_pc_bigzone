@@ -37,7 +37,7 @@ python3 --version
 
 ### Bước 2.1: Clone project
 ```bash
-git clone https://github.com/tee-overthinker/build_pc_bigzone.git
+git clone https://github.com/tienht-real/build_pc_bigzone.git
 cd build_pc_bigzone
 ```
 
@@ -71,6 +71,16 @@ passlib[bcrypt]  - Mã hóa password
 python-jose      - JWT token
 anthropic        - Chatbot AI (Claude API)
 ```
+
+### Bước 2.4: ⭐ Tạo database (BẮT BUỘC)
+> File database (`pcmarket.db`) **không** nằm trong Git. Sau khi clone, bạn phải
+> tự tạo nó, nếu không web sẽ trống và không đăng nhập admin được.
+
+```bash
+cd backend
+python seed.py
+```
+Lệnh này tạo database, tài khoản admin và 39 sản phẩm mẫu (kèm ảnh nội bộ).
 
 ---
 
@@ -228,8 +238,16 @@ set ANTHROPIC_API_KEY=sk-xxxxx
 export ANTHROPIC_API_KEY=sk-xxxxx
 ```
 
+### Lỗi: Web trống, không có sản phẩm / không đăng nhập admin được
+**Giải pháp:** Bạn chưa tạo database. Chạy:
+```bash
+cd backend
+python seed.py
+```
+
 ### Lỗi: Không thấy hình ảnh sản phẩm
-**Giải pháp:** Kiểm tra kết nối internet (hình ảnh được load từ Unsplash CDN).
+**Giải pháp:** Ảnh nằm sẵn trong `static/images/products/` (đi kèm repo, không cần
+internet). Nếu thiếu, chạy lại `python seed.py` để gán lại đường dẫn ảnh.
 
 ### Muốn xem logs chi tiết hơn
 ```bash
