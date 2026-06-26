@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#0f172a"/>
+  <rect x="120" y="100" width="160" height="160" rx="14" fill="#1e293b" stroke="#06b6d4" stroke-width="3"/>
+  <circle cx="200" cy="180" r="60" fill="none" stroke="#06b6d4" stroke-width="3"/>
+  <circle cx="200" cy="180" r="14" fill="#06b6d4"/>
+  <path d="M200 180 C200 150 180 130 165 140 C190 145 195 165 200 180 Z" fill="#0e7490"/>
+  <path d="M200 180 C230 180 250 160 240 145 C235 170 215 175 200 180 Z" fill="#0e7490"/>
+  <path d="M200 180 C200 210 220 230 235 220 C210 215 205 195 200 180 Z" fill="#0e7490"/>
+  <path d="M200 180 C170 180 150 200 160 215 C165 190 185 185 200 180 Z" fill="#0e7490"/>
+  <text x="200" y="320" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#e2e8f0" text-anchor="middle">TẢN NHIỆT</text>
+</svg>

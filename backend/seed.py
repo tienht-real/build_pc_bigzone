@@ -330,6 +330,11 @@ products = [
 
 db.add_all(products)
 db.commit()
+
+# ── LINH KIỆN cho trang Build PC (gắn loại + thêm linh kiện mới) ──────────────
+from build_components import apply_build_components
+tagged, added = apply_build_components(db, models)
 db.close()
 
-print(f"OK! Seeded {len(categories)} categories va {len(products)} products thanh cong!")
+print(f"OK! Seeded {len(categories)} categories va {len(products) + added} products thanh cong!")
+print(f"   (Build PC: gan loai cho {tagged} linh kien, them moi {added} linh kien)")

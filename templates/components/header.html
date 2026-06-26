@@ -8,7 +8,6 @@
                 </div>
                 <div class="top-links">
                     <a href="#"><i class="ph-fill ph-article"></i> Trang tin công nghệ</a>
-                    <a href="#"><i class="ph-fill ph-wrench"></i> Tư vấn Build PC</a>
                     {% if current_user %}
                         <a href="#"><i class="ph-bold ph-user"></i> Xin chào, {{ current_user.username }}</a>
                         {% if current_user.role == 'admin' %}
@@ -52,7 +51,7 @@
                             <strong class="value">087.997.9997</strong>
                         </div>
                     </a>
-                    <a href="#" class="action-item hide-mobile">
+                    <a href="/build-pc" class="action-item hide-mobile">
                         <i class="ph-bold ph-desktop action-icon"></i>
                         <div class="action-text">
                             <span class="title">Xây dựng</span>
@@ -144,6 +143,7 @@
         <div class="mobile-menu-section">
             <h4>Liên kết</h4>
             <ul>
+                <li><a href="/build-pc"><i class="ph-fill ph-desktop-tower"></i> Xây dựng cấu hình PC</a></li>
                 <li><a href="/cart"><i class="ph-fill ph-shopping-cart"></i> Giỏ hàng</a></li>
                 <li><a href="tel:0879999999"><i class="ph-fill ph-phone-call"></i> Hotline: 087.997.9997</a></li>
             </ul>

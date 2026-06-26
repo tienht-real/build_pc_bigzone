@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Xây dựng cấu hình PC | Bigzone{% endblock %}
+
+{% block content %}
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-bar">
+        <div class="container">
+            <nav class="breadcrumb">
+                <a href="/"><i class="ph-fill ph-house"></i> Trang chủ</a>
+                <i class="ph-bold ph-caret-right"></i>
+                <span>Xây dựng cấu hình PC</span>
+            </nav>
+        </div>
+    </div>
+
+    <section class="section">
+        <div class="container">
+            <h1 class="page-title"><i class="ph-bold ph-desktop-tower"></i> Xây dựng cấu hình PC</h1>
+            <p class="build-intro">Chọn từng linh kiện để lắp ráp bộ PC của riêng bạn. Tổng tiền cập nhật tự động — chọn xong bấm "Thêm cả bộ vào giỏ".</p>
+
+            <div class="build-layout">
+                <!-- Cột trái: danh sách khe linh kiện -->
+                <div class="build-slots">
+                    {% for slot in slots %}
+                    <div class="build-slot" data-slot="{{ slot.key }}">
+                        <div class="slot-head">
+                            <div class="slot-icon"><i class="ph-bold {{ slot.icon }}"></i></div>
+                            <div class="slot-label">{{ slot.label }}</div>
+                        </div>
+
+                        <div class="slot-body">
+                            <div class="slot-empty">Chưa chọn linh kiện</div>
+                            <div class="slot-selected" style="display:none;">
+                                <img class="sel-img" src="" alt="">
+                                <div class="sel-info">
+                                    <div class="sel-title"></div>
+                                    <div class="sel-price"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="slot-actions">
+                            {% if slot.products %}
+                            <button class="btn-pick" data-slot="{{ slot.key }}">
+                                <i class="ph-bold ph-plus-circle"></i> Chọn
+                            </button>
+                            <button class="btn-remove" data-slot="{{ slot.key }}" style="display:none;">
+                                <i class="ph-bold ph-x"></i>
+                            </button>
+                            {% else %}
+                            <span class="slot-none">Đang cập nhật</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Cột phải: tổng kết -->
+                <aside class="build-summary">
+                    <h3><i class="ph-bold ph-receipt"></i> Cấu hình của bạn</h3>
+                    <div class="summary-row">
+                        <span>Số linh kiện đã chọn</span>
+                        <strong id="buildCount">0 / {{ slots|length }}</strong>
+                    </div>
+                    <div class="summary-total">
+                        <span>Tạm tính</span>
+                        <strong id="buildTotal">0 VNĐ</strong>
+                    </div>
+                    <button class="btn-add-build" id="btnAddBuild" disabled>
+                        <i class="ph-bold ph-shopping-cart"></i> Thêm cả bộ vào giỏ
+                    </button>
+                    <button class="btn-reset-build" id="btnResetBuild">
+                        <i class="ph-bold ph-arrow-counter-clockwise"></i> Làm lại
+                    </button>
+                    <p class="build-note"><i class="ph-bold ph-info"></i> Cấu hình mang tính tham khảo. Liên hệ <b>087.997.9997</b> để được tư vấn lắp đặt & kiểm tra tương thích.</p>
+                </aside>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modals chọn linh kiện (mỗi khe 1 modal) -->
+    {% for slot in slots %}
+    {% if slot.products %}
+    <div class="build-modal" id="modal-{{ slot.key }}">
+        <div class="build-modal-box">
+            <div class="build-modal-head">
+                <h3><i class="ph-bold {{ slot.icon }}"></i> Chọn {{ slot.label }}</h3>
+                <button class="modal-close" data-slot="{{ slot.key }}"><i class="ph-bold ph-x"></i></button>
+            </div>
+            <div class="build-modal-list">
+                {% for p in slot.products %}
+                <div class="pick-item"
+                     data-id="{{ p.id }}"
+                     data-title="{{ p.title }}"
+                     data-price="{{ p.price_current }}"
+                     data-image="{{ p.image_url }}"
+                     data-slot="{{ slot.key }}">
+                    <img src="{{ p.image_url }}" alt="{{ p.title }}">
+                    <div class="pick-info">
+                        <div class="pick-title">{{ p.title }}</div>
+                        {% if p.brand %}<div class="pick-brand">{{ p.brand }}</div>{% endif %}
+                        <div class="pick-price">{{ p.price_current | currency }}</div>
+                    </div>
+                    <button class="btn-pick-confirm">Chọn</button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+
+{% endblock %}

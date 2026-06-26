@@ -34,6 +34,8 @@ class Product(Base):
     description = Column(Text, nullable=True)
     stock = Column(Integer, default=10)
     section = Column(String, nullable=True)  # "HOT_SALE", "PC_GAMING", or None
+    # Loại linh kiện cho trang Build PC: cpu, mainboard, ram, vga, ssd, psu, case, cooling
+    component_type = Column(String, nullable=True)
 
     category_id = Column(Integer, ForeignKey("categories.id"))
     category = relationship("Category", back_populates="products")

@@ -299,6 +299,35 @@ async def chat(req: schemas.ChatRequest, db: Session = Depends(get_db)):
     )
 
 
+# ── Trang Build PC (xây dựng cấu hình) ───────────────────────────────────
+BUILD_SLOTS = [
+    {"key": "cpu",       "label": "CPU - Bộ vi xử lý",   "icon": "ph-cpu"},
+    {"key": "mainboard", "label": "Mainboard - Bo mạch chủ", "icon": "ph-circuitry"},
+    {"key": "ram",       "label": "RAM - Bộ nhớ",        "icon": "ph-memory"},
+    {"key": "vga",       "label": "VGA - Card đồ họa",   "icon": "ph-graphics-card"},
+    {"key": "ssd",       "label": "Ổ cứng SSD",          "icon": "ph-hard-drives"},
+    {"key": "psu",       "label": "Nguồn - PSU",         "icon": "ph-plug"},
+    {"key": "case",      "label": "Case - Vỏ máy",       "icon": "ph-desktop-tower"},
+    {"key": "cooling",   "label": "Tản nhiệt",           "icon": "ph-fan"},
+]
+
+
+@app.get("/build-pc")
+async def build_pc_page(request: Request, db: Session = Depends(get_db)):
+    ctx = base_ctx(request, db)
+    slots = []
+    for slot in BUILD_SLOTS:
+        products = (
+            db.query(models.Product)
+            .filter(models.Product.component_type == slot["key"])
+            .order_by(models.Product.price_current.asc())
+            .all()
+        )
+        slots.append({**slot, "products": products})
+    ctx["slots"] = slots
+    return templates.TemplateResponse("pages/build_pc.html", ctx)
+
+
 # ── Trang xác nhận đơn hàng ──────────────────────────────────────────────
 @app.get("/order-success/{order_id}")
 async def order_success_page(order_id: int, request: Request, db: Session = Depends(get_db)):

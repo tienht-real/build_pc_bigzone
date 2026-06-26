@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#0f172a"/>
+  <rect x="140" y="80" width="120" height="240" rx="10" fill="#1e293b" stroke="#3b82f6" stroke-width="3"/>
+  <circle cx="200" cy="140" r="26" fill="none" stroke="#3b82f6" stroke-width="3"/>
+  <circle cx="200" cy="140" r="6" fill="#3b82f6"/>
+  <line x1="200" y1="114" x2="200" y2="166" stroke="#3b82f6" stroke-width="2"/>
+  <line x1="174" y1="140" x2="226" y2="140" stroke="#3b82f6" stroke-width="2"/>
+  <rect x="160" y="195" width="80" height="8" rx="4" fill="#334155"/>
+  <rect x="160" y="215" width="80" height="8" rx="4" fill="#334155"/>
+  <rect x="160" y="235" width="80" height="8" rx="4" fill="#334155"/>
+  <text x="200" y="360" font-family="Arial, sans-serif" font-size="26" font-weight="bold" fill="#e2e8f0" text-anchor="middle">CASE / VỎ MÁY</text>
+</svg>
