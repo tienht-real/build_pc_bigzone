@@ -2,12 +2,13 @@ import logging
 from fastapi import FastAPI, Request, Depends, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, StreamingResponse
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 import models
 import schemas
 import auth
+import chatbot
 from database import engine, get_db
 from routers import auth_router, admin_router
 
@@ -285,6 +286,17 @@ async def create_order(order_data: schemas.OrderCreate, db: Session = Depends(ge
     db.refresh(order)
     logger.info("Order #%s created – total %s VNĐ", order.id, verified_total)
     return {"status": "success", "order_id": order.id}
+
+
+# ── Chatbot AI tư vấn ────────────────────────────────────────────────────
+@app.post("/api/chat")
+async def chat(req: schemas.ChatRequest, db: Session = Depends(get_db)):
+    messages = [{"role": m.role, "content": m.content} for m in req.messages]
+    return StreamingResponse(
+        chatbot.stream_chat(messages, db),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
 
 
 # ── Trang xác nhận đơn hàng ──────────────────────────────────────────────

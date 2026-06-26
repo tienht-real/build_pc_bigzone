@@ -77,3 +77,36 @@ class OrderCreate(BaseModel):
     customer: CustomerInfo
     items: List[OrderItemCreate]
     total: int
+
+
+# ── Chatbot schemas ────────────────────────────────────────────────────────────
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+    @field_validator("role")
+    @classmethod
+    def role_valid(cls, v):
+        if v not in ("user", "assistant"):
+            raise ValueError("role phải là 'user' hoặc 'assistant'")
+        return v
+
+    @field_validator("content")
+    @classmethod
+    def content_not_empty(cls, v):
+        if not v.strip():
+            raise ValueError("Nội dung không được để trống")
+        return v.strip()
+
+
+class ChatRequest(BaseModel):
+    messages: List[ChatMessage]
+
+    @field_validator("messages")
+    @classmethod
+    def messages_not_empty(cls, v):
+        if not v:
+            raise ValueError("Cần ít nhất một tin nhắn")
+        if v[-1].role != "user":
+            raise ValueError("Tin nhắn cuối phải từ người dùng")
+        return v

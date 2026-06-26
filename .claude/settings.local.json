@@ -12,7 +12,23 @@
       "Bash(git init:*)",
       "Bash(git remote:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(unzip -o \"Đề Cương ĐATN - Web TMĐT PC-Laptop + Chatbot AI.docx\" -d /tmp/docx_extract)",
+      "Read(//tmp/docx_extract/word/**)",
+      "Bash(python -c 'import sqlite3; c=sqlite3.connect\\('\\\\''backend/pcmarket.db'\\\\''\\); cur=c.cursor\\(\\); *)",
+      "Bash(command -v pandoc)",
+      "Skill(claude-api)",
+      "Bash(pip install *)",
+      "Bash(echo \"---exit: $?\")",
+      "Bash(python -c \"import chatbot, main; print\\('imports OK'\\); print\\('tool:', chatbot.SEARCH_PRODUCTS_TOOL['name']\\); print\\('client \\(no key\\):', chatbot.get_client\\(\\)\\)\")",
+      "Bash(python -c ' *)",
+      "Bash(PYTHONIOENCODING=utf-8 python -c ' *)",
+      "Bash(PYTHONIOENCODING=utf-8 ANTHROPIC_API_KEY='' python -c ' *)",
+      "Bash(python -m py_compile chatbot.py main.py schemas.py)",
+      "Bash(python -c \"import main; print\\('OK - app imported, routes loaded'\\)\")",
+      "Bash(python -c \"import main; [print\\(r.path\\) for r in main.app.routes if 'orders' in r.path]\")"
     ]
   }
 }

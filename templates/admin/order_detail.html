@@ -1,0 +1,102 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Đơn hàng #{{ order.id }} - Bigzone Admin{% endblock %}
+
+{% set status_labels = {
+    "pending": "Chờ xác nhận",
+    "confirmed": "Đã xác nhận",
+    "shipping": "Đang giao",
+    "done": "Hoàn thành",
+    "cancelled": "Đã hủy"
+} %}
+{% set status_colors = {
+    "pending": "#f59e0b;background:#fffbeb",
+    "confirmed": "#3b82f6;background:#eff6ff",
+    "shipping": "#8b5cf6;background:#f5f3ff",
+    "done": "#10b981;background:#ecfdf5",
+    "cancelled": "#ef4444;background:#fef2f2"
+} %}
+
+{% block content %}
+<div style="margin-bottom:20px;">
+    <a href="/admin/orders" style="color:#64748b; text-decoration:none;"><i class="ph-bold ph-arrow-left"></i> Quay lại danh sách</a>
+</div>
+
+<div style="display:grid; grid-template-columns:2fr 1fr; gap:20px; align-items:start;">
+    <!-- Cột trái: thông tin đơn -->
+    <div style="display:flex; flex-direction:column; gap:20px;">
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2 style="margin:0;">Đơn hàng #{{ order.id }}</h2>
+                <span style="color:{{ status_colors[order.status] }}; padding:4px 12px; border-radius:12px; font-size:13px; font-weight:600;">{{ status_labels.get(order.status, order.status) }}</span>
+            </div>
+            <p style="color:#64748b; margin:8px 0 0; font-size:14px;">Đặt lúc {{ order.created_at.strftime('%d/%m/%Y %H:%M') }}</p>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-top:0;">Sản phẩm</h3>
+            <table class="table" style="margin-top:0;">
+                <thead>
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th width="100">Đơn giá</th>
+                        <th width="60">SL</th>
+                        <th width="120">Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order.items %}
+                    <tr>
+                        <td>{{ item.product_title }}</td>
+                        <td>{{ item.price | currency }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td style="font-weight:600;">{{ (item.price * item.quantity) | currency }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" style="text-align:right; font-weight:600;">Tổng cộng</td>
+                        <td style="color:#ef4444; font-weight:700; font-size:16px;">{{ order.total | currency }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <!-- Cột phải: khách hàng + cập nhật trạng thái -->
+    <div style="display:flex; flex-direction:column; gap:20px;">
+        <div class="card">
+            <h3 style="margin-top:0;">Khách hàng</h3>
+            <p style="margin:6px 0;"><b>{{ order.customer_name }}</b></p>
+            <p style="margin:6px 0; color:#475569;"><i class="ph-bold ph-phone"></i> {{ order.customer_phone }}</p>
+            {% if order.customer_email %}
+            <p style="margin:6px 0; color:#475569;"><i class="ph-bold ph-envelope"></i> {{ order.customer_email }}</p>
+            {% endif %}
+            <p style="margin:6px 0; color:#475569;"><i class="ph-bold ph-map-pin"></i> {{ order.address }}</p>
+            <p style="margin:6px 0; color:#475569;"><i class="ph-bold ph-credit-card"></i> {{ order.payment_method | upper }}</p>
+            {% if order.note %}
+            <p style="margin:12px 0 0; padding-top:12px; border-top:1px solid #e2e8f0; color:#64748b; font-size:14px;"><b>Ghi chú:</b> {{ order.note }}</p>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <h3 style="margin-top:0;">Cập nhật trạng thái</h3>
+            <form action="/admin/orders/{{ order.id }}/status" method="POST">
+                <div class="form-group">
+                    <select name="new_status" class="form-control">
+                        {% for s in statuses %}
+                        <option value="{{ s }}" {{ 'selected' if order.status == s else '' }}>{{ status_labels[s] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;"><i class="ph-bold ph-check"></i> Lưu thay đổi</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.nav-item')[2].classList.add('active');
+</script>
+{% endblock %}

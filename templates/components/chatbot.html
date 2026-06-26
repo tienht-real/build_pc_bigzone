@@ -1,0 +1,37 @@
+<!-- Chatbot AI tư vấn -->
+<div class="chatbot" id="chatbot">
+    <!-- Nút mở/đóng -->
+    <button class="chatbot-toggle" id="chatbotToggle" aria-label="Mở chat tư vấn">
+        <i class="ph-fill ph-chat-circle-dots chatbot-toggle-open"></i>
+        <i class="ph-bold ph-x chatbot-toggle-close"></i>
+    </button>
+
+    <!-- Khung chat -->
+    <div class="chatbot-panel" id="chatbotPanel" aria-hidden="true">
+        <div class="chatbot-header">
+            <div class="chatbot-header-avatar">
+                <i class="ph-fill ph-robot"></i>
+            </div>
+            <div class="chatbot-header-info">
+                <strong>Trợ lý Bigzone</strong>
+                <span>Tư vấn PC &amp; Laptop bằng AI</span>
+            </div>
+        </div>
+
+        <div class="chatbot-messages" id="chatbotMessages">
+            <div class="chat-msg chat-msg-bot">
+                <div class="chat-bubble">
+                    Xin chào! 👋 Mình là trợ lý tư vấn của Bigzone. Bạn cần tìm PC, laptop
+                    hay linh kiện gì? Cho mình biết nhu cầu và ngân sách nhé!
+                </div>
+            </div>
+        </div>
+
+        <form class="chatbot-input" id="chatbotForm" autocomplete="off">
+            <input type="text" id="chatbotInput" placeholder="Nhập câu hỏi của bạn..." maxlength="500">
+            <button type="submit" id="chatbotSend" aria-label="Gửi">
+                <i class="ph-fill ph-paper-plane-right"></i>
+            </button>
+        </form>
+    </div>
+</div>

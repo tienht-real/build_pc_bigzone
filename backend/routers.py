@@ -149,3 +149,49 @@ async def admin_product_delete(product_id: int, db: Session = Depends(get_db)):
         db.delete(product)
         db.commit()
     return RedirectResponse(url="/admin/products", status_code=status.HTTP_302_FOUND)
+
+
+# --- Admin: Quản lý đơn hàng ---
+ORDER_STATUSES = ["pending", "confirmed", "shipping", "done", "cancelled"]
+
+@admin_router.get("/orders", response_class=HTMLResponse)
+async def admin_orders(request: Request, status_filter: str = "", db: Session = Depends(get_db)):
+    query = db.query(models.Order)
+    if status_filter in ORDER_STATUSES:
+        query = query.filter(models.Order.status == status_filter)
+    orders = query.order_by(models.Order.created_at.desc()).all()
+    ctx = {
+        "request": request,
+        "orders": orders,
+        "status_filter": status_filter,
+        "statuses": ORDER_STATUSES,
+        "current_user": auth.get_current_user_optional(request, db),
+    }
+    return templates.TemplateResponse("admin/orders_list.html", ctx)
+
+@admin_router.get("/orders/{order_id}", response_class=HTMLResponse)
+async def admin_order_detail(order_id: int, request: Request, db: Session = Depends(get_db)):
+    order = db.query(models.Order).filter(models.Order.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Đơn hàng không tồn tại")
+    ctx = {
+        "request": request,
+        "order": order,
+        "statuses": ORDER_STATUSES,
+        "current_user": auth.get_current_user_optional(request, db),
+    }
+    return templates.TemplateResponse("admin/order_detail.html", ctx)
+
+@admin_router.post("/orders/{order_id}/status")
+async def admin_order_update_status(
+    order_id: int,
+    new_status: str = Form(...),
+    db: Session = Depends(get_db),
+):
+    if new_status not in ORDER_STATUSES:
+        raise HTTPException(status_code=400, detail="Trạng thái không hợp lệ")
+    order = db.query(models.Order).filter(models.Order.id == order_id).first()
+    if order:
+        order.status = new_status
+        db.commit()
+    return RedirectResponse(url=f"/admin/orders/{order_id}", status_code=status.HTTP_302_FOUND)
