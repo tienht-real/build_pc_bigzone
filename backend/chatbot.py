@@ -1,12 +1,14 @@
 """
 Chatbot AI tư vấn sản phẩm cho Bigzone.
 
-Dùng Claude (model claude-opus-4-8) với tool use để truy vấn dữ liệu sản phẩm
-thật trong CSDL, và stream câu trả lời về client qua SSE.
+Dùng model của NVIDIA (qua OpenAI SDK, endpoint integrate.api.nvidia.com) với
+function calling để truy vấn dữ liệu sản phẩm thật trong CSDL, và stream câu
+trả lời về client qua SSE.
 """
 import json
 import logging
 import os
+import time
 
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
@@ -15,8 +17,27 @@ import models
 
 logger = logging.getLogger("bigzone.chatbot")
 
-MODEL = "claude-opus-4-8"
+# Cấu hình qua biến môi trường (có giá trị mặc định cho NVIDIA NIM).
+BASE_URL = os.environ.get("NVIDIA_BASE_URL", "https://integrate.api.nvidia.com/v1")
+MODEL = os.environ.get("NVIDIA_MODEL", "nvidia/nemotron-3-ultra-550b-a55b")
 MAX_TOOL_ROUNDS = 5
+
+# ⚠️ TẠM HARDCODE KEY — NHỚ XÓA và rotate key sau khi test xong.
+# Ưu tiên biến môi trường NVIDIA_API_KEY; nếu không có thì dùng key dưới đây.
+_FALLBACK_API_KEY = "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"
+
+# Retry khi NVIDIA báo quá tải tạm thời (ResourceExhausted / 429 / 503 ...).
+MAX_RETRIES = 4
+RETRY_BASE_DELAY = 2  # giây; lần thử thứ n đợi RETRY_BASE_DELAY * n
+
+
+def _is_retryable(err: Exception) -> bool:
+    """Đúng nếu lỗi là dạng quá tải tạm thời, nên thử lại."""
+    msg = str(err).lower()
+    return any(k in msg for k in (
+        "resourceexhausted", "request limit", "worker local",
+        "429", "too many requests", "503", "overloaded", "unavailable",
+    ))
 
 # Lazy import + khởi tạo client để web vẫn chạy được khi chưa cài/đặt key.
 _client = None
@@ -24,57 +45,61 @@ _client_ready = False
 
 
 def get_client():
-    """Trả về Anthropic client, hoặc None nếu thiếu key / chưa cài SDK."""
+    """Trả về OpenAI client trỏ tới NVIDIA, hoặc None nếu thiếu key / chưa cài SDK."""
     global _client, _client_ready
     if _client_ready:
         return _client
     _client_ready = True
-    if not os.environ.get("ANTHROPIC_API_KEY"):
-        logger.warning("Thiếu ANTHROPIC_API_KEY — chatbot bị tắt.")
+    api_key = os.environ.get("NVIDIA_API_KEY") or _FALLBACK_API_KEY
+    if not api_key:
+        logger.warning("Thiếu NVIDIA_API_KEY — chatbot bị tắt.")
         _client = None
         return None
     try:
-        import anthropic
-        _client = anthropic.Anthropic()
+        from openai import OpenAI
+        _client = OpenAI(base_url=BASE_URL, api_key=api_key)
     except Exception as e:  # SDK chưa cài hoặc lỗi khởi tạo
-        logger.warning("Không khởi tạo được Anthropic client: %s", e)
+        logger.warning("Không khởi tạo được OpenAI/NVIDIA client: %s", e)
         _client = None
     return _client
 
 
-# ── Định nghĩa tool tìm sản phẩm ─────────────────────────────────────────────
+# ── Định nghĩa tool tìm sản phẩm (chuẩn OpenAI function calling) ──────────────
 SEARCH_PRODUCTS_TOOL = {
-    "name": "search_products",
-    "description": (
-        "Tìm sản phẩm trong cửa hàng Bigzone theo danh mục, từ khoá và khoảng giá. "
-        "Luôn dùng tool này để lấy dữ liệu sản phẩm THẬT trước khi tư vấn — "
-        "không được tự bịa ra sản phẩm, giá hay thông số."
-    ),
-    "input_schema": {
-        "type": "object",
-        "properties": {
-            "category_id": {
-                "type": "integer",
-                "description": "ID danh mục cần lọc (xem danh sách danh mục trong hướng dẫn). Bỏ trống nếu không chắc.",
+    "type": "function",
+    "function": {
+        "name": "search_products",
+        "description": (
+            "Tìm sản phẩm trong cửa hàng Bigzone theo danh mục, từ khoá và khoảng giá. "
+            "Luôn dùng tool này để lấy dữ liệu sản phẩm THẬT trước khi tư vấn — "
+            "không được tự bịa ra sản phẩm, giá hay thông số."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "category_id": {
+                    "type": "integer",
+                    "description": "ID danh mục cần lọc (xem danh sách danh mục trong hướng dẫn). Bỏ trống nếu không chắc.",
+                },
+                "keyword": {
+                    "type": "string",
+                    "description": "Từ khoá tìm theo tên/thương hiệu/mô tả, ví dụ 'RTX 4060', 'laptop', 'gaming'.",
+                },
+                "min_price": {
+                    "type": "integer",
+                    "description": "Giá tối thiểu (VNĐ).",
+                },
+                "max_price": {
+                    "type": "integer",
+                    "description": "Giá tối đa (VNĐ). Dùng khi khách nêu ngân sách.",
+                },
+                "max_results": {
+                    "type": "integer",
+                    "description": "Số sản phẩm tối đa trả về (mặc định 8).",
+                },
             },
-            "keyword": {
-                "type": "string",
-                "description": "Từ khoá tìm theo tên/thương hiệu/mô tả, ví dụ 'RTX 4060', 'laptop', 'gaming'.",
-            },
-            "min_price": {
-                "type": "integer",
-                "description": "Giá tối thiểu (VNĐ).",
-            },
-            "max_price": {
-                "type": "integer",
-                "description": "Giá tối đa (VNĐ). Dùng khi khách nêu ngân sách.",
-            },
-            "max_results": {
-                "type": "integer",
-                "description": "Số sản phẩm tối đa trả về (mặc định 8).",
-            },
+            "required": [],
         },
-        "required": [],
     },
 }
 
@@ -160,8 +185,8 @@ def _sse(event: str, **data) -> str:
 
 def stream_chat(messages: list[dict], db: Session):
     """
-    Generator đồng bộ: chạy agentic loop (streaming + tool use) và yield các
-    sự kiện SSE: delta (text), done, error.
+    Generator đồng bộ: chạy agentic loop (streaming + function calling) và yield
+    các sự kiện SSE: delta (text), done, error.
     """
     client = get_client()
     if client is None:
@@ -173,41 +198,106 @@ def stream_chat(messages: list[dict], db: Session):
         return
 
     system_prompt = build_system_prompt(db)
-    convo = list(messages)  # bản sao để nối thêm các lượt tool
+    # OpenAI/NVIDIA: system prompt là message role="system" ở đầu hội thoại.
+    convo = [{"role": "system", "content": system_prompt}] + list(messages)
 
     try:
         for _ in range(MAX_TOOL_ROUNDS):
-            with client.messages.stream(
-                model=MODEL,
-                max_tokens=2048,
-                thinking={"type": "adaptive"},
-                system=system_prompt,
-                tools=[SEARCH_PRODUCTS_TOOL],
-                messages=convo,
-            ) as stream:
-                for text in stream.text_stream:
-                    yield _sse("delta", text=text)
-                final = stream.get_final_message()
+            # Mỗi vòng tool: thử lại khi NVIDIA quá tải, nhưng CHỈ khi chưa
+            # stream chữ nào ra cho khách (nếu đã stream thì retry sẽ lặp text).
+            attempt = 0
+            while True:
+                content_parts = []
+                tool_calls = {}  # index -> {"id", "name", "arguments"}
+                finish_reason = None
+                emitted = False
+                try:
+                    stream = client.chat.completions.create(
+                        model=MODEL,
+                        messages=convo,
+                        tools=[SEARCH_PRODUCTS_TOOL],
+                        temperature=1,
+                        top_p=0.95,
+                        max_tokens=16384,
+                        extra_body={"chat_template_kwargs": {"enable_thinking": True}},
+                        stream=True,
+                    )
 
-            if final.stop_reason != "tool_use":
+                    for chunk in stream:
+                        if not chunk.choices:
+                            continue
+                        choice = chunk.choices[0]
+                        delta = choice.delta
+                        if choice.finish_reason:
+                            finish_reason = choice.finish_reason
+
+                        # Phần trả lời cho khách → stream về client.
+                        text = getattr(delta, "content", None)
+                        if text:
+                            content_parts.append(text)
+                            emitted = True
+                            yield _sse("delta", text=text)
+
+                        # Phần reasoning của model → bỏ qua, không hiển thị cho khách.
+
+                        # Tích luỹ các tool_call (đến theo từng mảnh).
+                        for tc in (getattr(delta, "tool_calls", None) or []):
+                            slot = tool_calls.setdefault(
+                                tc.index, {"id": "", "name": "", "arguments": ""}
+                            )
+                            if tc.id:
+                                slot["id"] = tc.id
+                            if tc.function and tc.function.name:
+                                slot["name"] = tc.function.name
+                            if tc.function and tc.function.arguments:
+                                slot["arguments"] += tc.function.arguments
+                    break  # vòng stream thành công → thoát retry loop
+                except Exception as e:
+                    if _is_retryable(e) and not emitted and attempt < MAX_RETRIES:
+                        attempt += 1
+                        delay = RETRY_BASE_DELAY * attempt
+                        logger.warning(
+                            "NVIDIA quá tải (%s) — thử lại lần %d/%d sau %ds.",
+                            e, attempt, MAX_RETRIES, delay,
+                        )
+                        yield _sse("status", message="Hệ thống đang bận, đang thử lại…")
+                        time.sleep(delay)
+                        continue
+                    raise  # không retry được → để outer except xử lý
+
+            # Không gọi tool → đã có câu trả lời cuối cùng.
+            if not tool_calls:
                 yield _sse("done")
                 return
 
-            # Thực thi các tool_use, nối assistant turn + tool_result rồi lặp.
-            convo.append({"role": "assistant", "content": final.content})
-            tool_results = []
-            for block in final.content:
-                if block.type == "tool_use":
-                    if block.name == "search_products":
-                        result = run_search_products(db, **(block.input or {}))
-                    else:
-                        result = json.dumps({"error": "tool không hỗ trợ"})
-                    tool_results.append({
-                        "type": "tool_result",
-                        "tool_use_id": block.id,
-                        "content": result,
-                    })
-            convo.append({"role": "user", "content": tool_results})
+            # Nối assistant turn (kèm tool_calls) + kết quả tool rồi lặp lại.
+            convo.append({
+                "role": "assistant",
+                "content": "".join(content_parts) or None,
+                "tool_calls": [
+                    {
+                        "id": s["id"],
+                        "type": "function",
+                        "function": {"name": s["name"], "arguments": s["arguments"] or "{}"},
+                    }
+                    for s in tool_calls.values()
+                ],
+            })
+
+            for s in tool_calls.values():
+                try:
+                    args = json.loads(s["arguments"] or "{}")
+                except json.JSONDecodeError:
+                    args = {}
+                if s["name"] == "search_products":
+                    result = run_search_products(db, **args)
+                else:
+                    result = json.dumps({"error": "tool không hỗ trợ"})
+                convo.append({
+                    "role": "tool",
+                    "tool_call_id": s["id"],
+                    "content": result,
+                })
 
         # Vượt quá số vòng tool cho phép
         yield _sse(

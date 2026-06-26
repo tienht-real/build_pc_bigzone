@@ -69,7 +69,7 @@ jinja2           - Template engine
 python-multipart - Xử lý form data
 passlib[bcrypt]  - Mã hóa password
 python-jose      - JWT token
-anthropic        - Chatbot AI (Claude API)
+openai           - Chatbot AI (NVIDIA API qua OpenAI SDK)
 ```
 
 ### Bước 2.4: ⭐ Tạo database (BẮT BUỘC)
@@ -229,14 +229,15 @@ uvicorn main:app --reload --port 8001
 ```
 
 ### Lỗi: Chatbot AI không hoạt động
-**Giải pháp:** Kiểm tra biến môi trường `ANTHROPIC_API_KEY`
+**Giải pháp:** Kiểm tra biến môi trường `NVIDIA_API_KEY`
 ```bash
 # Windows
-set ANTHROPIC_API_KEY=sk-xxxxx
+set NVIDIA_API_KEY=nvapi-xxxxx
 
 # macOS/Linux
-export ANTHROPIC_API_KEY=sk-xxxxx
+export NVIDIA_API_KEY=nvapi-xxxxx
 ```
+> Tuỳ chọn: đặt `NVIDIA_MODEL` để đổi model (mặc định `nvidia/nemotron-3-ultra-550b-a55b`).
 
 ### Lỗi: Web trống, không có sản phẩm / không đăng nhập admin được
 **Giải pháp:** Bạn chưa tạo database. Chạy:
